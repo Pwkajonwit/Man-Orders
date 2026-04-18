@@ -8,6 +8,8 @@ interface ModalProps {
   title: any;
   children: React.ReactNode;
   showClose?: boolean;
+  className?: string;
+  bodyClassName?: string;
 }
 export function Modal({
   isOpen,
@@ -15,6 +17,8 @@ export function Modal({
   title,
   children,
   showClose = true,
+  className,
+  bodyClassName,
 }: ModalProps) {
   if (!isOpen) return null;
   return (
@@ -23,7 +27,7 @@ export function Modal({
         className="absolute inset-0 bg-slate-950/40"
         onClick={onClose}
       />
-      <div className="relative w-full max-w-lg rounded-xl border border-slate-200 bg-white p-5">
+      <div className={cn("relative w-full max-w-lg rounded-xl border border-slate-200 bg-white p-5", className)}>
         <div className="mb-4 flex items-center justify-between gap-4 border-b border-slate-200 pb-4">
           <div className="text-base text-slate-900">
             {title}
@@ -37,7 +41,7 @@ export function Modal({
             </button>
           )}
         </div>
-        {children}
+        <div className={bodyClassName}>{children}</div>
       </div>
     </div>
   );

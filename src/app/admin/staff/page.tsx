@@ -3,13 +3,10 @@ import { useState } from "react";
 import Image from "next/image";
 import { 
   AdminEmptyState,
-  AdminHeader,
   AdminPage,
   AdminPanel,
   AdminPrimaryButton,
   AdminSecondaryButton,
-  AdminStatCard,
-  AdminStatGrid,
   AdminStatusChip,
 } from "@/components/admin/AdminUI";
 import { Users, Loader2, ShieldCheck, Link2, Search, CheckCircle2, Shield, UserPlus, Edit3 } from "lucide-react";
@@ -39,13 +36,10 @@ export default function StaffPage() {
     s.username?.toLowerCase().includes(searchQuery.toLowerCase()) ||
     s.phone?.toLowerCase().includes(searchQuery.toLowerCase())
   );
-
-  const staffStats = [
-    { label: "TOTAL STAFF", value: staff.length, icon: Users, color: "text-slate-400", bg: "bg-slate-50" },
-    { label: "ADMINISTRATORS", value: staff.filter(s => s.role === 'Admin').length, icon: Shield, color: "text-blue-500", bg: "bg-blue-50" },
-    { label: "ACTIVE USERS", value: staff.filter(s => s.status === 'active').length, icon: CheckCircle2, color: "text-emerald-500", bg: "bg-emerald-50" },
-    { label: "LINE CONNECTED", value: staff.filter(s => s.lineUserId).length, icon: Link2, color: "text-[#06C755]", bg: "bg-[#06C755]/5" },
-  ];
+  const totalStaff = staff.length;
+  const adminCount = staff.filter((s) => s.role === "Admin").length;
+  const activeCount = staff.filter((s) => s.status === "active").length;
+  const lineConnectedCount = staff.filter((s) => s.lineUserId).length;
 
   const handleOpenAdd = () => {
     setIsEditing(false);
@@ -104,60 +98,96 @@ export default function StaffPage() {
 
   return (
     <>
-      <AdminPage>
-        <AdminHeader
-          title="รายชื่อพนักงาน"
-          subtitle="จัดการสิทธิ์การเข้าถึงข้อมูลและบัญชีผู้ใช้งานในระบบ"
-          actions={
-            <div className="flex items-center gap-3">
-              <div className="relative group hidden md:block">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-slate-700 transition-colors" />
-                <Input
-                  placeholder="ค้นหาพนักงาน..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-11 h-11 w-64 rounded-xl border border-slate-200 bg-white text-sm text-slate-900 transition-all focus:border-slate-400"
-                />
+      <AdminPage className="gap-5">
+        <section className="relative overflow-hidden rounded-[20px] border border-amber-100/80 bg-[radial-gradient(circle_at_top_left,rgba(255,228,155,0.42),transparent_34%),radial-gradient(circle_at_top_right,rgba(103,232,249,0.16),transparent_28%),linear-gradient(135deg,#fffdf5_0%,#fff8df_45%,#f2fbf8_100%)] px-4 py-4 shadow-[0_22px_50px_-48px_rgba(120,113,108,0.45)] lg:px-5">
+          <div className="relative z-10 flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
+            <div className="min-w-0 flex-1 space-y-1.5">
+              <div className="inline-flex items-center gap-2 rounded-full border border-amber-200 bg-white/85 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-amber-700 shadow-sm">
+                <Users className="h-3.5 w-3.5" />
+                Staff Directory
               </div>
-              <AdminPrimaryButton onClick={handleOpenAdd} icon={UserPlus}>
+              <div className="space-y-1">
+                <h1 className="text-[1.85rem] font-semibold tracking-[-0.04em] text-slate-950 lg:text-[2rem]">รายชื่อพนักงาน</h1>
+                <p className="truncate text-sm text-slate-600">จัดการสิทธิ์ บทบาท และการเชื่อมต่อบัญชีผู้ใช้งาน</p>
+              </div>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2 xl:flex-nowrap">
+              <div className="min-w-[148px] rounded-[14px] border border-white/80 bg-white/80 px-3 py-2.5 shadow-sm backdrop-blur">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <div className="text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-400">ทั้งหมด</div>
+                    <div className="mt-1 text-[1.5rem] font-semibold leading-none tracking-[-0.04em] text-slate-950">{totalStaff}</div>
+                  </div>
+                  <div className="flex h-8 w-8 items-center justify-center rounded-[12px] border border-slate-200 bg-slate-50 text-slate-600">
+                    <Users className="h-4 w-4" />
+                  </div>
+                </div>
+              </div>
+
+              <div className="min-w-[148px] rounded-[14px] border border-white/80 bg-white/80 px-3 py-2.5 shadow-sm backdrop-blur">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <div className="text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-400">Admin</div>
+                    <div className="mt-1 text-[1.5rem] font-semibold leading-none tracking-[-0.04em] text-slate-950">{adminCount}</div>
+                  </div>
+                  <div className="flex h-8 w-8 items-center justify-center rounded-[12px] border border-blue-200 bg-blue-50 text-blue-700">
+                    <Shield className="h-4 w-4" />
+                  </div>
+                </div>
+              </div>
+
+              <div className="min-w-[148px] rounded-[14px] border border-white/80 bg-white/80 px-3 py-2.5 shadow-sm backdrop-blur">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <div className="text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-400">Active</div>
+                    <div className="mt-1 text-[1.5rem] font-semibold leading-none tracking-[-0.04em] text-slate-950">{activeCount}</div>
+                  </div>
+                  <div className="flex h-8 w-8 items-center justify-center rounded-[12px] border border-emerald-200 bg-emerald-50 text-emerald-700">
+                    <CheckCircle2 className="h-4 w-4" />
+                  </div>
+                </div>
+              </div>
+
+              <div className="min-w-[148px] rounded-[14px] border border-white/80 bg-white/80 px-3 py-2.5 shadow-sm backdrop-blur">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <div className="text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-400">LINE</div>
+                    <div className="mt-1 text-[1.5rem] font-semibold leading-none tracking-[-0.04em] text-slate-950">{lineConnectedCount}</div>
+                  </div>
+                  <div className="flex h-8 w-8 items-center justify-center rounded-[12px] border border-amber-200 bg-amber-50 text-amber-700">
+                    <Link2 className="h-4 w-4" />
+                  </div>
+                </div>
+              </div>
+
+              <AdminPrimaryButton
+                onClick={handleOpenAdd}
+                icon={UserPlus}
+                className="h-10 rounded-[14px] border-amber-300 bg-amber-300 px-4 text-sm font-semibold text-slate-950 shadow-[0_16px_24px_-22px_rgba(217,119,6,0.8)] hover:border-amber-400 hover:bg-amber-400 hover:text-slate-950"
+              >
                 เพิ่มพนักงาน
               </AdminPrimaryButton>
             </div>
+          </div>
+        </section>
+
+        <AdminPanel
+          title="บัญชีผู้ใช้งาน"
+          subtitle="รายการพนักงานและสิทธิ์การเข้าถึงแยกตามบทบาท"
+          className="rounded-[18px] border-slate-200 shadow-[0_18px_40px_-42px_rgba(15,23,42,0.28)]"
+          action={
+            <div className="relative group w-full sm:w-auto">
+              <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400 transition-colors group-focus-within:text-slate-700" />
+              <Input
+                placeholder="ค้นหาพนักงาน..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="h-10 w-full rounded-[14px] border border-slate-200 bg-white pl-11 text-sm text-slate-900 shadow-sm transition-all focus:border-slate-400 sm:w-72"
+              />
+            </div>
           }
-        />
-
-        <AdminStatGrid>
-          <AdminStatCard
-            label="บุคลากรทั้งหมด"
-            value={staff.length}
-            detail="บัญชีที่ลงทะเบียนในระบบ"
-            icon={Users}
-            tone="slate"
-          />
-          <AdminStatCard
-            label="ผู้ดูแลระบบ"
-            value={staff.filter((s) => s.role === "Admin").length}
-            detail="สิทธิ์เข้าถึง Administrative"
-            icon={Shield}
-            tone="blue"
-          />
-          <AdminStatCard
-            label="Active Users"
-            value={staff.filter((s) => s.status === "active").length}
-            detail="บัญชีที่เปิดโหมดใช้งานอยู่"
-            icon={CheckCircle2}
-            tone="emerald"
-          />
-          <AdminStatCard
-            label="LINE Connected"
-            value={staff.filter((s) => s.lineUserId).length}
-            detail="เชื่อมบัญชีแจ้งเตือนแล้ว"
-            icon={Link2}
-            tone="amber"
-          />
-        </AdminStatGrid>
-
-        <AdminPanel title="บัญชีผู้ใช้งาน" subtitle="รายการพนักงานและสิทธิ์การเข้าถึงแยกตามบทบาท">
+        >
           <div className="overflow-x-auto">
             <table className="admin-table">
               <thead>
@@ -254,28 +284,33 @@ export default function StaffPage() {
       </AdminPage>
 
       {/* Staff Form Modal */}
-      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title={isEditing ? "แก้ไขข้อมูลพนักงาน" : "ลงทะเบียนพนักงานใหม่"}>
-        <form onSubmit={handleSubmit} className="space-y-6 pt-4">
+      <Modal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        title={isEditing ? "แก้ไขข้อมูลพนักงาน" : "ลงทะเบียนพนักงานใหม่"}
+        className="max-w-2xl rounded-[18px] border-slate-200/90 p-5 shadow-[0_24px_60px_-48px_rgba(15,23,42,0.4)]"
+      >
+        <form onSubmit={handleSubmit} className="space-y-5 pt-2">
           <div className="space-y-4">
             <div className="space-y-1.5">
               <Label className="text-sm text-slate-700">ชื่อ-นามสกุล</Label>
-              <Input required placeholder="ระบุชื่อจริงภาษาไทย" className="h-11 rounded-xl border border-slate-200 text-sm text-slate-900" value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} />
+              <Input required placeholder="ระบุชื่อจริงภาษาไทย" className="h-10 rounded-[14px] border border-slate-200 text-sm text-slate-900" value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} />
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1.5">
                 <Label className="text-sm text-slate-700">ชื่อผู้ใช้งาน (LOGIN ID)</Label>
-                <Input required placeholder="somchai_p" className="h-11 rounded-xl border border-slate-200 text-sm text-slate-900" value={formData.username} onChange={(e) => setFormData({ ...formData, username: e.target.value })} />
+                <Input required placeholder="somchai_p" className="h-10 rounded-[14px] border border-slate-200 text-sm text-slate-900" value={formData.username} onChange={(e) => setFormData({ ...formData, username: e.target.value })} />
               </div>
               <div className="space-y-1.5">
                 <Label className="text-sm text-slate-700">เบอร์โทรศัพท์</Label>
-                <Input placeholder="08X-XXX-XXXX" className="h-11 rounded-xl border border-slate-200 text-sm text-slate-900" value={formData.phone} onChange={(e) => setFormData({ ...formData, phone: e.target.value })} />
+                <Input placeholder="08X-XXX-XXXX" className="h-10 rounded-[14px] border border-slate-200 text-sm text-slate-900" value={formData.phone} onChange={(e) => setFormData({ ...formData, phone: e.target.value })} />
               </div>
             </div>
 
             <div className="space-y-1.5">
               <Label className="text-sm text-slate-700">บทบาทและความรับผิดชอบ</Label>
-              <Select className="h-11 rounded-xl border border-slate-200 text-sm text-slate-900" value={formData.role} onChange={(e) => setFormData({ ...formData, role: e.target.value })} >
+              <Select className="h-10 rounded-[14px] border border-slate-200 text-sm text-slate-900" value={formData.role} onChange={(e) => setFormData({ ...formData, role: e.target.value })} >
                 <option value="ผู้สั่งซื้อ">📁 ผู้สั่งซื้อ (Orderer)</option>
                 <option value="พนักงานจัดซื้อ">🛒 พนักงานจัดซื้อ (Buyer)</option>
                 <option value="Admin">⚡ ผู้ดูแลระบบ (Admin)</option>
@@ -283,9 +318,9 @@ export default function StaffPage() {
             </div>
           </div>
 
-          <div className="flex gap-3 pt-6 border-t border-slate-100 mt-4">
-            <AdminSecondaryButton type="button" className="flex-1" onClick={() => setIsModalOpen(false)}>ยกเลิก</AdminSecondaryButton>
-            <AdminPrimaryButton submitting={submitting} icon={CheckCircle2} className="flex-[2]">
+          <div className="mt-4 flex gap-3 border-t border-slate-100 pt-5">
+            <AdminSecondaryButton type="button" className="h-10 flex-1 rounded-[14px]" onClick={() => setIsModalOpen(false)}>ยกเลิก</AdminSecondaryButton>
+            <AdminPrimaryButton submitting={submitting} icon={CheckCircle2} className="h-10 flex-[2] rounded-[14px]">
               {isEditing ? "บันทึกแก้ไข" : "ยืนยันลงทะเบียน"}
             </AdminPrimaryButton>
           </div>

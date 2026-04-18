@@ -48,6 +48,9 @@ export default function OrderSupportLoginPage() {
         if (isAdmin) router.push("/admin");
         else if (isBuyer) router.push("/order");
         else router.push("/buy");
+      } else {
+        // Automatically switch to phone linking mode if LINE is logged in but no staff linked
+        setMode("line-phone");
       }
     } catch (err) {
       console.error("Auto LINE login failed:", err);

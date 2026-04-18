@@ -2,13 +2,10 @@
 import React, { useRef, useState } from "react";
 import { 
   AdminEmptyState,
-  AdminHeader,
   AdminPage,
   AdminPanel,
   AdminPrimaryButton,
   AdminSecondaryButton,
-  AdminStatCard,
-  AdminStatGrid,
 } from "@/components/admin/AdminUI";
 import {
   Store,
@@ -155,6 +152,8 @@ export default function StoresPage() {
     s.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     s.location.toLowerCase().includes(searchQuery.toLowerCase())
   );
+  const totalOrders = stores.reduce((a, b) => a + (b.orders || 0), 0);
+  const activeStores = stores.filter((s) => (s.orders || 0) > 0).length;
 
   const handleOpenAdd = () => {
     setFormData({
@@ -328,33 +327,79 @@ export default function StoresPage() {
 
   return (
     <>
-      <AdminPage>
-        <AdminHeader
-          title="รายชื่อร้านค้าพาร์ทเนอร์"
-          subtitle="จัดการข้อมูลและช่องทางการสั่งซื้อของร้านค้าคู่ค้าทั้งหมด"
-          actions={
-            <div className="flex items-center gap-3">
-              <div className="relative group hidden md:block">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-slate-700 transition-colors" />
-                <Input
-                  placeholder="ค้นหาร้านค้า..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-11 h-11 w-64 rounded-xl border border-slate-200 bg-white text-sm text-slate-900 transition-all focus:border-slate-400"
-                />
+      <AdminPage className="gap-5">
+        <section className="relative overflow-hidden rounded-[20px] border border-amber-100/80 bg-[radial-gradient(circle_at_top_left,rgba(255,228,155,0.42),transparent_34%),radial-gradient(circle_at_top_right,rgba(103,232,249,0.16),transparent_28%),linear-gradient(135deg,#fffdf5_0%,#fff8df_45%,#f2fbf8_100%)] px-4 py-4 shadow-[0_22px_50px_-48px_rgba(120,113,108,0.45)] lg:px-5">
+          <div className="relative z-10 flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
+            <div className="min-w-0 flex-1 space-y-1.5">
+              <div className="inline-flex items-center gap-2 rounded-full border border-amber-200 bg-white/85 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-amber-700 shadow-sm">
+                <Building2 className="h-3.5 w-3.5" />
+                Partner Stores
               </div>
-              <AdminSecondaryButton type="button" onClick={handleExportCsv} icon={Download}>
-                ส่งออก CSV
-              </AdminSecondaryButton>
-              <AdminSecondaryButton type="button" onClick={handleImportButtonClick} icon={Upload} disabled={importing}>
-                {importing ? "กำลังนำเข้า..." : "นำเข้า CSV"}
-              </AdminSecondaryButton>
-              <AdminPrimaryButton onClick={handleOpenAdd} icon={Store}>
+              <div className="space-y-1">
+                <h1 className="text-[1.85rem] font-semibold tracking-[-0.04em] text-slate-950 lg:text-[2rem]">รายชื่อร้านค้าพาร์ทเนอร์</h1>
+                <p className="truncate text-sm text-slate-600">จัดการข้อมูลและช่องทางการสั่งซื้อของร้านค้าคู่ค้าทั้งหมด</p>
+              </div>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2 xl:flex-nowrap">
+              <div className="min-w-[148px] rounded-[14px] border border-white/80 bg-white/80 px-3 py-2.5 shadow-sm backdrop-blur">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <div className="text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-400">ร้านค้าทั้งหมด</div>
+                    <div className="mt-1 text-[1.5rem] font-semibold leading-none tracking-[-0.04em] text-slate-950">{stores.length}</div>
+                  </div>
+                  <div className="flex h-8 w-8 items-center justify-center rounded-[12px] border border-slate-200 bg-slate-50 text-slate-600">
+                    <Building2 className="h-4 w-4" />
+                  </div>
+                </div>
+              </div>
+
+              <div className="min-w-[148px] rounded-[14px] border border-white/80 bg-white/80 px-3 py-2.5 shadow-sm backdrop-blur">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <div className="text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-400">หมวดหมู่</div>
+                    <div className="mt-1 text-[1.5rem] font-semibold leading-none tracking-[-0.04em] text-slate-950">{settings.categories.length}</div>
+                  </div>
+                  <div className="flex h-8 w-8 items-center justify-center rounded-[12px] border border-blue-200 bg-blue-50 text-blue-700">
+                    <Store className="h-4 w-4" />
+                  </div>
+                </div>
+              </div>
+
+              <div className="min-w-[148px] rounded-[14px] border border-white/80 bg-white/80 px-3 py-2.5 shadow-sm backdrop-blur">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <div className="text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-400">ออร์เดอร์สะสม</div>
+                    <div className="mt-1 text-[1.5rem] font-semibold leading-none tracking-[-0.04em] text-slate-950">{totalOrders}</div>
+                  </div>
+                  <div className="flex h-8 w-8 items-center justify-center rounded-[12px] border border-emerald-200 bg-emerald-50 text-emerald-700">
+                    <ShoppingCart className="h-4 w-4" />
+                  </div>
+                </div>
+              </div>
+
+              <div className="min-w-[148px] rounded-[14px] border border-white/80 bg-white/80 px-3 py-2.5 shadow-sm backdrop-blur">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <div className="text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-400">ร้านค้า Active</div>
+                    <div className="mt-1 text-[1.5rem] font-semibold leading-none tracking-[-0.04em] text-slate-950">{activeStores}</div>
+                  </div>
+                  <div className="flex h-8 w-8 items-center justify-center rounded-[12px] border border-amber-200 bg-amber-50 text-amber-700">
+                    <ExternalLink className="h-4 w-4" />
+                  </div>
+                </div>
+              </div>
+
+              <AdminPrimaryButton
+                onClick={handleOpenAdd}
+                icon={Plus}
+                className="h-10 rounded-[14px] border-amber-300 bg-amber-300 px-4 text-sm font-semibold text-slate-950 shadow-[0_16px_24px_-22px_rgba(217,119,6,0.8)] hover:border-amber-400 hover:bg-amber-400 hover:text-slate-950"
+              >
                 เพิ่มร้านค้าใหม่
               </AdminPrimaryButton>
             </div>
-          }
-        />
+          </div>
+        </section>
 
         <input
           ref={fileInputRef}
@@ -364,38 +409,34 @@ export default function StoresPage() {
           onChange={handleImportCsv}
         />
 
-        <AdminStatGrid>
-          <AdminStatCard
-            label="จำนวนร้านค้า"
-            value={stores.length}
-            detail="พาร์ทเนอร์ทั้งหมดในระบบ"
-            icon={Building2}
-            tone="slate"
-          />
-          <AdminStatCard
-            label="หมวดหมู่ร้าน"
-            value={settings.categories.length}
-            detail="ประเภทธุรกิจที่ลงทะเบียน"
-            icon={Store}
-            tone="blue"
-          />
-          <AdminStatCard
-            label="ออร์เดอร์สะสม"
-            value={stores.reduce((a, b) => a + (b.orders || 0), 0)}
-            detail="ยอดสั่งซื้อรวมทุกร้าน"
-            icon={ShoppingCart}
-            tone="emerald"
-          />
-          <AdminStatCard
-            label="ร้านค้า Active"
-            value={stores.filter(s => (s.orders || 0) > 0).length}
-            detail="มีการสั่งซื้ออย่างน้อย 1 ครั้ง"
-            icon={ExternalLink}
-            tone="amber"
-          />
-        </AdminStatGrid>
-
-        <AdminPanel title="ทำเนียบร้านค้า" subtitle="รายชื่อพาร์ทเนอร์ที่พร้อมให้บริการจัดซื้อ">
+        <AdminPanel
+          title="ทำเนียบร้านค้า"
+          subtitle="รายชื่อพาร์ทเนอร์ที่พร้อมให้บริการจัดซื้อ"
+          className="rounded-[18px] border-slate-200 shadow-[0_18px_40px_-42px_rgba(15,23,42,0.28)]"
+          action={
+            <div className="flex w-full flex-col gap-2 sm:w-auto sm:min-w-[26rem]">
+              <div className="flex flex-col gap-2 sm:flex-row">
+                <div className="relative group flex-1">
+                  <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400 transition-colors group-focus-within:text-slate-700" />
+                  <Input
+                    placeholder="ค้นหาร้านค้า..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="h-10 w-full rounded-[14px] border border-slate-200 bg-white pl-11 text-sm text-slate-900 shadow-sm transition-all focus:border-slate-400"
+                  />
+                </div>
+                <div className="flex gap-2">
+                  <AdminSecondaryButton type="button" onClick={handleExportCsv} icon={Download} className="h-10 rounded-[14px] px-3 text-sm">
+                    ส่งออก
+                  </AdminSecondaryButton>
+                  <AdminSecondaryButton type="button" onClick={handleImportButtonClick} icon={Upload} disabled={importing} className="h-10 rounded-[14px] px-3 text-sm">
+                    {importing ? "กำลังนำเข้า..." : "นำเข้า"}
+                  </AdminSecondaryButton>
+                </div>
+              </div>
+            </div>
+          }
+        >
           <div className="overflow-x-auto">
             <table className="admin-table">
               <thead>
@@ -495,15 +536,16 @@ export default function StoresPage() {
         isOpen={isModalOpen} 
         onClose={() => setIsModalOpen(false)} 
         title={isEditing ? "แก้ไขข้อมูลร้านค้า" : "ลงทะเบียนพาร์ทเนอร์ใหม่"}
+        className="max-w-2xl rounded-[18px] border-slate-200/90 p-5 shadow-[0_24px_60px_-48px_rgba(15,23,42,0.4)]"
       >
-        <form onSubmit={handleSubmit} className="space-y-6 pt-4">
+        <form onSubmit={handleSubmit} className="space-y-5 pt-2">
           <div className="space-y-4">
             <div className="space-y-1.5">
               <Label className="text-sm text-slate-700">ชื่อร้านค้า</Label>
               <Input 
                 required 
                 placeholder="ระบุชื่อที่จะใช้แสดงผลในระบบ" 
-                className="h-11 rounded-xl border border-slate-200 text-sm text-slate-900"
+                className="h-10 rounded-[14px] border border-slate-200 text-sm text-slate-900"
                 value={formData.name} 
                 onChange={(e) => setFormData({...formData, name: e.target.value})} 
               />
@@ -513,7 +555,7 @@ export default function StoresPage() {
               <div className="space-y-1.5">
                 <Label className="text-sm text-slate-700">ประเภทธุรกิจ</Label>
                 <Select 
-                  className="h-11 rounded-xl border border-slate-200 text-sm text-slate-900"
+                  className="h-10 rounded-[14px] border border-slate-200 text-sm text-slate-900"
                   value={formData.type} 
                   onChange={(e) => setFormData({...formData, type: e.target.value})}
                 >
@@ -525,7 +567,7 @@ export default function StoresPage() {
                 <Label className="text-sm text-slate-700">เบอร์โทรศัพท์ติดต่อ</Label>
                 <Input 
                   placeholder="เช่น 086-XXX-XXXX" 
-                  className="h-11 rounded-xl border border-slate-200 text-sm text-slate-900"
+                  className="h-10 rounded-[14px] border border-slate-200 text-sm text-slate-900"
                   value={formData.phone} 
                   onChange={(e) => setFormData({...formData, phone: e.target.value})} 
                 />
@@ -536,7 +578,7 @@ export default function StoresPage() {
               <Label className="text-sm text-slate-700">ที่ตั้งร้านค้า / พื้นที่ให้บริการ</Label>
               <Input 
                 placeholder="เช่น กทม., สมุทรปราการ..." 
-                className="h-11 rounded-xl border border-slate-200 text-sm text-slate-900"
+                className="h-10 rounded-[14px] border border-slate-200 text-sm text-slate-900"
                 value={formData.location} 
                 onChange={(e) => setFormData({...formData, location: e.target.value})} 
               />
@@ -548,7 +590,7 @@ export default function StoresPage() {
                 <ExternalLink className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300 group-focus-within:text-slate-700" />
                 <Input 
                   placeholder="https://maps.google.com/..." 
-                  className="pl-11 h-11 rounded-xl border border-slate-200 text-sm text-slate-900"
+                  className="pl-11 h-10 rounded-[14px] border border-slate-200 text-sm text-slate-900"
                   value={formData.mapUrl} 
                   onChange={(e) => setFormData({...formData, mapUrl: e.target.value})} 
                 />
@@ -556,10 +598,10 @@ export default function StoresPage() {
             </div>
           </div>
 
-           <div className="flex gap-3 pt-6 border-t border-slate-100 mt-4">
+           <div className="mt-4 flex gap-3 border-t border-slate-100 pt-5">
              <AdminSecondaryButton 
                type="button"
-               className="flex-1" 
+               className="h-10 flex-1 rounded-[14px]" 
                onClick={() => setIsModalOpen(false)}
              >
                ยกเลิก
@@ -567,7 +609,7 @@ export default function StoresPage() {
              <AdminPrimaryButton 
                submitting={submitting} 
                icon={CheckCircle2}
-               className="flex-[2]"
+               className="h-10 flex-[2] rounded-[14px]"
              >
                {isEditing ? "อัปเดตข้อมูล" : "ลงทะเบียนร้านค้า"}
              </AdminPrimaryButton>

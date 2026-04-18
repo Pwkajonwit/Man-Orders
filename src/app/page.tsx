@@ -1,14 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { UserCog, ShoppingCart, Truck, ChevronRight, Loader2, User, ArrowLeft } from "lucide-react";
+import { UserCog, ShoppingCart, Truck, ChevronRight, Loader2, User, ArrowLeft, CheckCircle2, Phone } from "lucide-react";
 import { useLiff } from "@/lib/liff";
 import { useStaff } from "@/hooks/useStaff";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { Input, Label } from "@/components/ui/FormElements";
 import { useBuyerAuth } from "@/context/BuyerContext";
-import { linkLineUserIdToStaff } from "@/lib/lineAuth";
+import { linkLineUserIdToStaff, findStaffByPhone } from "@/lib/lineAuth";
 
 export default function Home() {
   const { profile, isLoggedIn, loading: liffLoading, login: liffLogin, error: liffError } = useLiff();
@@ -16,9 +16,12 @@ export default function Home() {
   const { staff, loading: staffLoading } = useStaff();
   const router = useRouter();
 
-  const [mode, setMode] = useState<"choose" | "username">("choose");
+  const [mode, setMode] = useState<"choose" | "username" | "line-phone" | "line-linking">("choose");
   const [username, setUsername] = useState("");
+  const [phone, setPhone] = useState("");
   const [error, setError] = useState("");
+  const [lineLoading, setLineLoading] = useState(false);
+  const [linkSuccess, setLinkSuccess] = useState(false);
 
   const currentUser = useMemo(() => {
     if (buyer) return buyer;
@@ -27,12 +30,9 @@ export default function Home() {
   }, [profile, staff, buyer]);
 
   useEffect(() => {
-    // If not loaded yet, do nothing
     if (liffLoading || staffLoading || authLoading) return;
 
     if (currentUser) {
-      // Very Important: If we found currentUser via LINE but BuyerContext doesn't know them yet,
-      // we must log them in globally so the route guard doesn't kick them out!
       if (!buyer) {
         loginWithStaff(currentUser);
       }
@@ -49,8 +49,10 @@ export default function Home() {
       } else if (isOrderer) {
         router.replace("/buy");
       }
+    } else if (isLoggedIn && profile && !currentUser) {
+      setMode("line-phone");
     }
-  }, [liffLoading, staffLoading, authLoading, currentUser, buyer, loginWithStaff, router]);
+  }, [liffLoading, staffLoading, authLoading, currentUser, buyer, loginWithStaff, router, isLoggedIn, profile]);
 
   const allRoles = [
     {
@@ -83,7 +85,7 @@ export default function Home() {
 
     if (isAdmin) return allRoles;
     return allRoles.filter(r => r.allowed.includes(mappedRole));
-  }, [currentUser]);
+  }, [currentUser, allRoles]);
 
   const handleUsernameLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -96,11 +98,9 @@ export default function Home() {
 
     const user = login(username, staff);
     if (user) {
-      // Automatic Linking: If they log in via Username but we have a LINE profile, link them!
       if (isLoggedIn && profile) {
         try {
           await linkLineUserIdToStaff(user.id, profile.userId, profile.pictureUrl, profile.displayName);
-          console.log("Account linked successfully");
         } catch (linkErr) {
           console.error("Failed to link account automatically:", linkErr);
         }
@@ -112,9 +112,59 @@ export default function Home() {
 
       if (isAdmin) router.push("/admin");
       else if (isBuyer) router.push("/order");
-      else router.push("/buy"); // Default to buy portal
+      else router.push("/buy");
     } else {
       setError("ไม่พบข้อมูลผู้ใช้นี้ในระบบ");
+    }
+  };
+
+  const handlePhoneSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+
+    const cleaned = phone.replace(/[\s\-]/g, "");
+    if (!cleaned || cleaned.length < 9) {
+      setError("กรุณากรอกเบอร์โทรศัพท์ให้ถูกต้อง");
+      return;
+    }
+
+    setLineLoading(true);
+    try {
+      const foundStaff = await findStaffByPhone(cleaned);
+      if (!foundStaff) {
+        setError("ไม่พบเบอร์นี้ในระบบ กรุณาตรวจสอบหรือติดต่อผู้ดูแลระบบ");
+        setLineLoading(false);
+        return;
+      }
+
+      const lineUserId = profile?.userId;
+      if (lineUserId) {
+        await linkLineUserIdToStaff(
+          foundStaff.id,
+          lineUserId,
+          profile?.pictureUrl,
+          profile?.displayName
+        );
+      }
+
+      const linkedStaff = {
+        ...foundStaff,
+        lineUserId: lineUserId || foundStaff.lineUserId,
+        linePictureUrl: profile?.pictureUrl || foundStaff.linePictureUrl,
+        lineDisplayName: profile?.displayName || foundStaff.lineDisplayName,
+      };
+
+      setLinkSuccess(true);
+      setMode("line-linking");
+
+      setTimeout(() => {
+        loginWithStaff(linkedStaff);
+      }, 1500);
+    } catch (err) {
+      console.error("Phone linking failed:", err);
+      setError("เกิดข้อผิดพลาด กรุณาลองอีกครั้ง");
+    } finally {
+      setLineLoading(false);
     }
   };
 
@@ -151,28 +201,36 @@ export default function Home() {
               )}
               
               {isLoggedIn && !currentUser && (
-                <div className="mb-6 rounded-2xl bg-amber-50 p-5 text-left border border-amber-100 shadow-sm">
-                  <div className="flex items-center gap-3 text-amber-800 font-bold mb-2">
-                    <User className="h-5 w-5" />
-                    <span>ไม่พบการเชื่อมบัญชี LINE</span>
+                <div className="mb-6 rounded-2xl bg-emerald-50 p-6 text-left border border-emerald-100 shadow-sm transition-all animate-in fade-in slide-in-from-bottom-4">
+                  <div className="flex items-center gap-3 text-emerald-800 font-bold mb-3">
+                    <CheckCircle2 className="h-5 w-5" />
+                    <span>เข้าสู่ระบบ LINE สำเร็จ!</span>
                   </div>
-                  <p className="text-[13px] text-amber-700 leading-relaxed font-medium">
-                    คุณเข้าสู่ระบบ LINE สำเร็จแล้ว แต่บัญชีนี้ยังไม่ได้เชื่อมต่อกับระบบพนักงาน 
-                    <strong className="block mt-2">กรุณาเลือก "LOGIN WITH USERNAME" เพื่อระบุตัวตนและเชื่อมบัญชีในครั้งแรก</strong>
+                  <p className="text-[14px] text-emerald-700 leading-relaxed font-medium">
+                    กรุณาผูกบัญชีพนักงานของคุณเพื่อใช้งานต่อ
                   </p>
+                  <button 
+                    onClick={() => setMode("line-phone")}
+                    className="mt-4 w-full flex items-center justify-center gap-2 rounded-xl bg-emerald-600 py-3 text-sm font-bold text-white shadow-md hover:bg-emerald-700 transition-colors"
+                  >
+                    <Phone className="h-4 w-4" />
+                    เริ่มการผูกบัญชีด้วยเบอร์โทร
+                  </button>
                 </div>
               )}
 
-              <button 
-                onClick={liffLogin}
-                className="w-full flex items-center justify-center gap-3 rounded-2xl bg-[#06C755] px-8 py-4 font-bold text-white shadow-lg shadow-emerald-900/10 transition-all hover:bg-[#05b34c] active:scale-95 disabled:opacity-50"
-                disabled={!!liffError}
-              >
-                <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.63 0 .344-.281.629-.63.629h-2.386c-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63h2.386c.346 0 .627.285.627.63 0 .349-.281.63-.63.63H17.61v1.125h1.755zm-3.855 3.016c0 .27-.174.51-.432.596-.064.021-.133.031-.199.031-.211 0-.391-.09-.51-.25l-2.443-3.317v2.94c0 .344-.279.629-.631.629-.346 0-.626-.285-.626-.629V8.108c0-.271.173-.508.43-.595.06-.023.136-.033.194-.033.195 0 .375.104.495.254l2.462 3.33V8.108c0-.345.282-.63.63-.63.345 0 .63.285.63.63v4.771zm-5.741 0c0 .344-.282.629-.631.629-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63.346 0 .628.285.628.63v4.771zm-2.466.629H4.917c-.345 0-.63-.285-.63-.629V8.108c0-.345.285-.63.63-.63.348 0 .63.285.63.63v4.141h1.756c.348 0 .629.283.629.63 0 .344-.282.629-.629.629M24 10.314C24 4.943 18.615.572 12 .572S0 4.943 0 10.314c0 4.811 4.27 8.842 10.035 9.608.391.082.923.258 1.058.59.12.301.079.766.038 1.08l-.164 1.02c-.045.301-.24 1.186 1.049.645 1.291-.539 6.916-4078 9.436-6.975C23.176 14.393 24 12.458 24 10.314" />
-                </svg>
-                {isLoggedIn ? "LOGGED IN WITH LINE" : "LOGIN WITH LINE"}
-              </button>
+              {!isLoggedIn && (
+                <button 
+                  onClick={liffLogin}
+                  className="w-full flex items-center justify-center gap-3 rounded-2xl bg-[#06C755] px-8 py-4 font-bold text-white shadow-lg shadow-emerald-900/10 transition-all hover:bg-[#05b34c] active:scale-95 disabled:opacity-50"
+                  disabled={!!liffError}
+                >
+                  <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.63 0 .344-.281.629-.63.629h-2.386c-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63h2.386c.346 0 .627.285.627.63 0 .349-.281.63-.63.63H17.61v1.125h1.755zm-3.855 3.016c0 .27-.174.51-.432.596-.064.021-.133.031-.199.031-.211 0-.391-.09-.51-.25l-2.443-3.317v2.94c0 .344-.279.629-.631.629-.346 0-.626-.285-.626-.629V8.108c0-.271.173-.508.43-.595.06-.023.136-.033.194-.033.195 0 .375.104.495.254l2.462 3.33V8.108c0-.345.282-.63.63-.63.345 0 .63.285.63.63v4.771zm-5.741 0c0 .344-.282.629-.631.629-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63.346 0 .628.285.628.63v4.771zm-2.466.629H4.917c-.345 0-.63-.285-.63-.629V8.108c0-.345.285-.63.63-.63.348 0 .63.285.63.63v4.141h1.756c.348 0 .629.283.629.63 0 .344-.282.629-.629.629M24 10.314C24 4.943 18.615.572 12 .572S0 4.943 0 10.314c0 4.811 4.27 8.842 10.035 9.608.391.082.923.258 1.058.59.12.301.079.766.038 1.08l-.164 1.02c-.045.301-.24 1.186 1.049.645 1.291-.539 6.916-4.078 9.436-6.975C23.176 14.393 24 12.458 24 10.314" />
+                  </svg>
+                  LOGIN WITH LINE
+                </button>
+              )}
               
               <button 
                 onClick={() => setMode("username")}
@@ -181,8 +239,8 @@ export default function Home() {
                 {isLoggedIn && !currentUser ? "LINK ACCOUNT WITH USERNAME" : "LOGIN WITH USERNAME"}
               </button>
             </div>
-          ) : (
-            <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm text-left">
+          ) : mode === "username" ? (
+            <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm text-left animate-in fade-in zoom-in-95">
               <form onSubmit={handleUsernameLogin} className="space-y-5">
                 <div>
                   <Label>ชื่อพนักงานหรือ Username</Label>
@@ -204,7 +262,7 @@ export default function Home() {
                   disabled={staffLoading} 
                   className="w-full rounded-xl bg-slate-900 px-4 py-3 font-semibold text-white transition-all hover:bg-slate-800 disabled:opacity-50"
                 >
-                  {staffLoading ? <Loader2 className="mx-auto h-5 w-5 animate-spin" /> : "เข้าสู่ระบบ"}
+                  {staffLoading ? <Loader2 className="mx-auto h-5 w-5 animate-spin" /> : "เข้าสู่ระบบเพื่อเชื่อมต่อ"}
                 </button>
               </form>
 
@@ -216,7 +274,56 @@ export default function Home() {
                 กลับไปเลือกวิธีเข้าสู่ระบบ
               </button>
             </div>
-          )}
+          ) : mode === "line-phone" ? (
+            <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm text-left animate-in fade-in zoom-in-95">
+              <form onSubmit={handlePhoneSubmit} className="space-y-5">
+                <div>
+                  <Label>เบอร์โทรศัพท์ที่ลงทะเบียน</Label>
+                  <p className="mt-1 text-xs text-slate-500 mb-3">กรุณาระบุเบอร์โทรศัพท์เพื่อผูกกับบัญชี LINE นี้</p>
+                  <div className="relative">
+                    <Phone className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                    <Input
+                      autoFocus
+                      type="tel"
+                      placeholder="0XX-XXX-XXXX"
+                      className="pl-10"
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
+                    />
+                  </div>
+                  {error && <p className="mt-2 text-sm font-medium text-red-600">{error}</p>}
+                </div>
+
+                <button 
+                  type="submit" 
+                  disabled={lineLoading} 
+                  className="w-full rounded-xl bg-emerald-600 px-4 py-3 font-semibold text-white transition-all hover:bg-emerald-700 disabled:opacity-50"
+                >
+                  {lineLoading ? <Loader2 className="mx-auto h-5 w-5 animate-spin" /> : "ยืนยันและเชื่อมต่อบัญชี"}
+                </button>
+              </form>
+
+              <button
+                onClick={() => { setMode("choose"); setError(""); }}
+                className="mt-6 flex w-full items-center justify-center gap-2 text-sm text-slate-500 transition-colors hover:text-slate-900"
+              >
+                <ArrowLeft className="h-3.5 w-3.5" />
+                กลับหน้าหลัก
+              </button>
+            </div>
+          ) : mode === "line-linking" && linkSuccess ? (
+            <div className="rounded-2xl border border-emerald-200 bg-white p-8 shadow-sm text-center animate-in fade-in zoom-in-95">
+              <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100 text-emerald-600 mb-5">
+                <CheckCircle2 className="h-8 w-8" />
+              </div>
+              <h2 className="text-xl font-bold text-slate-900">เชื่อมต่อสำเร็จ!</h2>
+              <p className="mt-2 text-sm text-slate-500 mb-6">บัญชี LINE ของคุณถูกผูกกับระบบพนักงานเรียบร้อยแล้ว</p>
+              <div className="flex items-center justify-center gap-2 text-sm text-emerald-600 font-medium">
+                <Loader2 className="h-4 w-4 animate-spin" />
+                กำลังนำคุณเข้าสู่ Workspace...
+              </div>
+            </div>
+          ) : null}
         </div>
       </div>
     );
