@@ -127,8 +127,17 @@ export function buildNewOrderMessage(data: {
                 layout: "baseline",
                 spacing: "md",
                 contents: [
-                  { type: "text", text: "ผู้ขอซื้อ", color: "#64748B", size: "xs", flex: 3, weight: "bold" },
-                  { type: "text", text: data.requesterName, weight: "bold", color: "#1E293B", size: "sm", flex: 7, wrap: true }
+                  { type: "text", text: "เบอร์ติดต่อ", color: "#64748B", size: "xs", flex: 3, weight: "bold" },
+                  { type: "text", text: data.contact || "-", weight: "bold", color: "#2563EB", size: "sm", flex: 7, wrap: true }
+                ]
+              },
+              {
+                type: "box",
+                layout: "baseline",
+                spacing: "md",
+                contents: [
+                  { type: "text", text: "จุดส่งของ", color: "#64748B", size: "xs", flex: 3, weight: "bold" },
+                  { type: "text", text: data.location || "-", weight: "bold", color: "#0891B2", size: "sm", flex: 7, wrap: true }
                 ]
               },
               {
@@ -137,7 +146,7 @@ export function buildNewOrderMessage(data: {
                 spacing: "md",
                 contents: [
                   { type: "text", text: "ที่อยู่ร้าน", color: "#64748B", size: "xs", flex: 3, weight: "bold" },
-                  { type: "text", text: data.storeLocation || "-", color: "#1E293B", size: "sm", flex: 7, wrap: true }
+                  { type: "text", text: data.storeLocation || "-", color: "#475569", size: "sm", flex: 7, wrap: true }
                 ]
               },
               {
@@ -145,17 +154,8 @@ export function buildNewOrderMessage(data: {
                 layout: "baseline",
                 spacing: "md",
                 contents: [
-                  { type: "text", text: "ที่อยู่จัดส่ง", color: "#64748B", size: "xs", flex: 3, weight: "bold" },
-                  { type: "text", text: data.location || "-", color: "#1E293B", size: "sm", flex: 7, wrap: true }
-                ]
-              },
-              {
-                type: "box",
-                layout: "baseline",
-                spacing: "md",
-                contents: [
-                  { type: "text", text: "เบอร์ติดต่อ", color: "#64748B", size: "xs", flex: 3, weight: "bold" },
-                  { type: "text", text: data.contact || "-", color: "#1E293B", size: "sm", flex: 7, wrap: true }
+                  { type: "text", text: "ผู้สั่งซื้อ", color: "#64748B", size: "xs", flex: 3, weight: "bold" },
+                  { type: "text", text: data.requesterName, color: "#475569", size: "sm", flex: 7, wrap: true }
                 ]
               }
             ]
