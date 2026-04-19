@@ -32,11 +32,11 @@ import {
 } from "@/lib/lineNotify";
 
 const STATUS_MAP = {
-  pending: { label: "รอยืนยัน", color: "border-amber-200 bg-amber-50 text-amber-700" },
-  buying: { label: "กำลังซื้อ", color: "border-blue-200 bg-blue-50 text-blue-700" },
-  sorting: { label: "กำลังคัดแยก", color: "border-violet-200 bg-violet-50 text-violet-700" },
-  completed: { label: "เสร็จสิ้น", color: "border-emerald-200 bg-emerald-50 text-emerald-700" },
-  cancelled: { label: "ยกเลิก", color: "border-red-200 bg-red-50 text-red-700" },
+  pending: { label: "รอยืนยัน", color: "border-amber-200 bg-amber-50 text-amber-800" },
+  buying: { label: "กำลังซื้อ", color: "border-blue-200 bg-blue-50 text-blue-800" },
+  sorting: { label: "กำลังคัดแยก", color: "border-violet-200 bg-violet-50 text-violet-800" },
+  completed: { label: "เสร็จสิ้น", color: "border-emerald-200 bg-emerald-50 text-emerald-800" },
+  cancelled: { label: "ยกเลิก", color: "border-red-200 bg-red-50 text-red-800" },
 };
 
 const formatDateTime = (timestamp: any) => {
@@ -105,36 +105,7 @@ export default function OrderSupportPage() {
       newItems[itemIndex] = updatedItem;
     }
 
-    // --- Optimistic Update ---
     setSelectedOrder({ ...selectedOrder, items: newItems });
-
-    // Perform async update in background
-    (async () => {
-      try {
-        await updateOrder(selectedOrder.id, { items: newItems }); // Using broader updateOrder for consistency
-
-        const isProcessed = (i: Item) =>
-          i.status === "bought" || i.status === "cancelled" || i.status === "out_of_stock";
-        const hasBoughtAll = newItems.every(isProcessed);
-        const hasStartedBuying = newItems.some(isProcessed);
-
-        if (hasBoughtAll && selectedOrder.status !== "sorting" && selectedOrder.status !== "completed") {
-          await updateOrder(selectedOrder.id, {
-            status: "sorting",
-            buyerId: buyer?.id,
-            buyerName: buyer?.name
-          });
-        } else if (hasStartedBuying && selectedOrder.status === "pending") {
-          await updateOrder(selectedOrder.id, {
-            status: "buying",
-            buyerId: buyer?.id,
-            buyerName: buyer?.name
-          });
-        }
-      } catch (err) {
-        console.error("Failed to update status:", err);
-      }
-    })();
   };
 
   const saveEdit = async () => {
@@ -223,10 +194,10 @@ export default function OrderSupportPage() {
           <UserX className="h-10 w-10 text-slate-300" />
         </div>
         <div>
-          <h2 className="text-2xl font-semibold tracking-[-0.03em] text-slate-900">
+          <h2 className="text-2xl font-bold tracking-[-0.03em] text-slate-950">
             กรุณาเข้าสู่ระบบ
           </h2>
-          <p className="mt-2 text-sm leading-6 text-slate-600">
+          <p className="mt-2 text-sm font-semibold leading-6 text-slate-700">
             สำหรับเจ้าหน้าที่ที่จัดซื้อและอัปเดตสถานะออร์เดอร์
           </p>
         </div>
@@ -257,16 +228,16 @@ export default function OrderSupportPage() {
       {/* Statistics Row with Subtle Colors */}
       <div className="grid grid-cols-3 gap-2 px-1">
         <div className="rounded-lg border border-blue-100 bg-blue-50/50 py-2 px-3 transition-all">
-          <div className="text-sm uppercase tracking-wider text-blue-600 font-bold">ทั้งหมด</div>
-          <div className="text-lg  text-blue-800">{orders.length}</div>
+          <div className="text-sm uppercase tracking-wider text-blue-800 font-bold">ทั้งหมด</div>
+          <div className="text-lg font-bold text-blue-900">{orders.length}</div>
         </div>
         <div className="rounded-lg border border-amber-100 bg-amber-50/50 py-2 px-3 transition-all">
-          <div className="text-sm uppercase tracking-wider text-amber-600 font-bold">ค้างจ่าย</div>
-          <div className="text-lg  text-amber-800">{activeOrders.length}</div>
+          <div className="text-sm uppercase tracking-wider text-amber-800 font-bold">ค้างจ่าย</div>
+          <div className="text-lg font-bold text-amber-900">{activeOrders.length}</div>
         </div>
         <div className="rounded-lg border border-emerald-100 bg-emerald-50/50 py-2 px-3 transition-all">
-          <div className="text-sm uppercase tracking-wider text-emerald-600 font-bold">เสร็จสิ้น</div>
-          <div className="text-lg  text-emerald-800">{completedOrders.length}</div>
+          <div className="text-sm uppercase tracking-wider text-emerald-800 font-bold">เสร็จสิ้น</div>
+          <div className="text-lg font-bold text-emerald-900">{completedOrders.length}</div>
         </div>
       </div>
 
@@ -274,10 +245,10 @@ export default function OrderSupportPage() {
         <button
           onClick={() => setActiveTab("active")}
           className={cn(
-            "flex-1 rounded-md py-2 text-[14px] font-bold transition-all",
+            "flex-1 rounded-md py-2 text-sm font-bold transition-all",
             activeTab === "active"
               ? "bg-slate-900 text-white shadow-md shadow-slate-900/10"
-              : "text-slate-600 hover:bg-slate-50",
+              : "text-slate-800 hover:bg-slate-50",
           )}
         >
           รายการงาน ({activeOrders.length})
@@ -285,10 +256,10 @@ export default function OrderSupportPage() {
         <button
           onClick={() => setActiveTab("history")}
           className={cn(
-            "flex-1 rounded-md py-2 text-[14px] font-bold transition-all",
+            "flex-1 rounded-md py-2 text-sm font-bold transition-all",
             activeTab === "history"
               ? "bg-slate-900 text-white shadow-md shadow-slate-900/10"
-              : "text-slate-600 hover:bg-slate-50",
+              : "text-slate-800 hover:bg-slate-50",
           )}
         >
           ประวัติงาน ({completedOrders.length})
@@ -299,12 +270,12 @@ export default function OrderSupportPage() {
         {ordersLoading ? (
           <div className="flex min-h-[150px] flex-col items-center justify-center gap-2 text-slate-400">
             <Loader2 className="h-6 w-6 animate-spin" />
-            <span className="text-[11px] uppercase tracking-wider font-bold">กำลังโหลด...</span>
+            <span className="text-xs uppercase tracking-wider font-bold text-slate-700">กำลังโหลด...</span>
           </div>
         ) : displayOrders.length === 0 ? (
           <div className="rounded-lg border border-dashed border-slate-300 bg-white/50 py-12 text-center">
             <Package className="mx-auto h-8 w-8 text-slate-300 mb-2" />
-            <p className="text-sm font-bold text-slate-500">ไม่มีข้อมูลงานในส่วนนี้</p>
+            <p className="text-sm font-bold text-slate-700">ไม่มีข้อมูลงานในส่วนนี้</p>
           </div>
         ) : (
           displayOrders.map((order) => {
@@ -331,16 +302,16 @@ export default function OrderSupportPage() {
               >
                 <div className="flex items-center justify-between gap-3 mb-2">
                   <div className="flex items-center gap-2">
-                    <span className="text-[15px] font-bold text-slate-900 leading-tight">{order.storeName || "ไม่ระบุร้านค้า"}</span>
+                    <span className="text-base font-bold text-slate-950 leading-tight">{order.storeName || "ไม่ระบุร้านค้า"}</span>
                   </div>
                 </div>
 
                 <div className="flex items-center justify-between gap-4">
-                  <div className="text-[13px] font-semibold text-slate-600 truncate space-y-0.5">
-                    <div><span className="opacity-50 text-sm uppercase  mr-1">ผู้สั่ง:</span> {order.requesterName || "-"}</div>
-                    <div className="flex items-center gap-1.5 text-slate-500">
+                  <div className="text-sm font-semibold text-slate-800 truncate space-y-0.5">
+                    <div><span className="text-xs font-bold uppercase text-slate-950 mr-1">ผู้สั่ง:</span> {order.requesterName || "-"}</div>
+                    <div className="flex items-center gap-1.5 text-slate-700">
                       <Clock className="h-3.5 w-3.5" />
-                      <span className="text-[11px] font-bold">สั่งเมื่อ: {formatDateTime(order.createdAt)}</span>
+                      <span className="text-xs font-bold">สั่งเมื่อ: {formatDateTime(order.createdAt)}</span>
                     </div>
                   </div>
 
@@ -352,15 +323,15 @@ export default function OrderSupportPage() {
 
                         if (order.status === "completed" || order.status === "sorting") {
                           if (missing === 0 && bought > 0) {
-                            return <span className="text-sm  text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded uppercase">ครบ</span>;
+                            return <span className="text-sm font-bold text-emerald-800 bg-emerald-50 px-1.5 py-0.5 rounded uppercase">ครบ</span>;
                           }
                           return (
-                            <span className="text-sm  text-slate-600 bg-slate-100 px-1.5 py-0.5 rounded uppercase">
+                            <span className="text-sm font-bold text-slate-800 bg-slate-100 px-1.5 py-0.5 rounded uppercase">
                               ได้ {bought} / ขาด {missing}
                             </span>
                           );
                         }
-                        return <span className="text-sm  text-slate-400 bg-slate-50 px-2 py-0.5 rounded-md border border-slate-100">{progress}/{itemCount} Items</span>;
+                        return <span className="text-sm font-bold text-slate-700 bg-slate-50 px-2 py-0.5 rounded-md border border-slate-100">{progress}/{itemCount} Items</span>;
                       })()}
                     </div>
 
@@ -388,6 +359,8 @@ export default function OrderSupportPage() {
         isOpen={!!selectedOrder}
         onClose={() => setSelectedOrder(null)}
         title={selectedOrder?.storeName || "รายละเอียด"}
+        className="flex max-h-[calc(100dvh-2rem)] flex-col overflow-hidden"
+        bodyClassName="min-h-0 overflow-y-auto pr-1 pb-2"
       >
         {selectedOrder && (
           <div className="space-y-4">
@@ -395,7 +368,7 @@ export default function OrderSupportPage() {
               {!isEditing ? (
                 <button
                   onClick={() => setIsEditing(true)}
-                  className="flex items-center gap-1.5 text-[11px]  uppercase tracking-widest text-blue-600 hover:text-blue-800 transition-colors"
+                  className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest text-blue-700 hover:text-blue-800 transition-colors"
                 >
                   <Edit className="h-3.5 w-3.5" />
                   แก้ไขรายการ
@@ -407,13 +380,13 @@ export default function OrderSupportPage() {
                       setIsEditing(false);
                       setEditedOrder({ ...selectedOrder });
                     }}
-                    className="text-[11px]  uppercase tracking-widest text-slate-400 hover:text-slate-600"
+                    className="text-xs font-bold uppercase tracking-widest text-slate-700 hover:text-slate-800"
                   >
                     ยกเลิก
                   </button>
                   <button
                     onClick={saveEdit}
-                    className="flex items-center gap-1.5 text-[11px]  uppercase tracking-widest text-emerald-600 hover:text-emerald-800"
+                    className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest text-emerald-800 hover:text-emerald-900"
                   >
                     <Save className="h-3.5 w-3.5" />
                     บันทึก
@@ -426,17 +399,17 @@ export default function OrderSupportPage() {
               <div className="space-y-4 animate-in fade-in slide-in-from-top-1 duration-200">
                 <div className="grid grid-cols-2 gap-3">
                   <div className="space-y-1">
-                    <label className="text-sm  uppercase tracking-wider text-slate-400">ชื่อร้านค้า</label>
+                    <label className="text-sm font-bold uppercase tracking-wider text-slate-800">ชื่อร้านค้า</label>
                     <input
-                      className="w-full h-10 px-3 rounded-lg border-2 border-slate-100 bg-slate-50/50 text-sm font-bold text-slate-900 focus:border-blue-400 focus:bg-white outline-none transition-all"
+                      className="w-full h-10 px-3 rounded-lg border-2 border-slate-100 bg-slate-50/50 text-sm font-bold text-slate-950 placeholder:text-slate-500 focus:border-blue-400 focus:bg-white outline-none transition-all"
                       value={editedOrder.storeName}
                       onChange={(e) => setEditedOrder({ ...editedOrder, storeName: e.target.value })}
                     />
                   </div>
                   <div className="space-y-1">
-                    <label className="text-sm  uppercase tracking-wider text-slate-400">สถานที่ส่ง</label>
+                    <label className="text-sm font-bold uppercase tracking-wider text-slate-800">สถานที่ส่ง</label>
                     <input
-                      className="w-full h-10 px-3 rounded-lg border-2 border-slate-100 bg-slate-50/50 text-sm font-bold text-slate-900 focus:border-blue-400 focus:bg-white outline-none transition-all"
+                      className="w-full h-10 px-3 rounded-lg border-2 border-slate-100 bg-slate-50/50 text-sm font-bold text-slate-950 placeholder:text-slate-500 focus:border-blue-400 focus:bg-white outline-none transition-all"
                       value={editedOrder.location}
                       onChange={(e) => setEditedOrder({ ...editedOrder, location: e.target.value })}
                     />
@@ -444,9 +417,9 @@ export default function OrderSupportPage() {
                 </div>
 
                 <div className="space-y-1">
-                  <label className="text-sm  uppercase tracking-wider text-slate-400">สถานที่ร้าน</label>
+                  <label className="text-sm font-bold uppercase tracking-wider text-slate-800">สถานที่ร้าน</label>
                   <textarea
-                    className="w-full min-h-[84px] px-3 py-2.5 rounded-lg border-2 border-slate-100 bg-slate-50/50 text-sm font-bold text-slate-900 focus:border-blue-400 focus:bg-white outline-none transition-all"
+                    className="w-full min-h-[84px] px-3 py-2.5 rounded-lg border-2 border-slate-100 bg-slate-50/50 text-sm font-bold text-slate-950 placeholder:text-slate-500 focus:border-blue-400 focus:bg-white outline-none transition-all"
                     value={editedOrder.storeLocation || ""}
                     onChange={(e) => setEditedOrder({ ...editedOrder, storeLocation: e.target.value })}
                   />
@@ -454,10 +427,10 @@ export default function OrderSupportPage() {
 
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
-                    <label className="text-sm  uppercase tracking-wider text-slate-400">รายการสินค้า</label>
+                    <label className="text-sm font-bold uppercase tracking-wider text-slate-800">รายการสินค้า</label>
                     <button
                       onClick={addEditItem}
-                      className="flex items-center gap-1 text-sm  uppercase text-blue-600 hover:bg-blue-50 px-2 py-1 rounded"
+                      className="flex items-center gap-1 text-sm font-bold uppercase text-blue-700 hover:bg-blue-50 px-2 py-1 rounded"
                     >
                       <Plus className="h-3 w-3" />
                       เพิ่มสินค้า
@@ -469,13 +442,13 @@ export default function OrderSupportPage() {
                         <div className="flex gap-2">
                           <input
                             placeholder="ชื่อสินค้า"
-                            className="flex-1 h-9 px-3 rounded-lg border border-slate-100 bg-slate-50 text-[13px] font-bold text-slate-900 focus:border-blue-400 outline-none transition-all"
+                            className="flex-1 h-9 px-3 rounded-lg border border-slate-100 bg-slate-50 text-sm font-bold text-slate-950 placeholder:text-slate-500 focus:border-blue-400 outline-none transition-all"
                             value={item.name}
                             onChange={(e) => updateEditItem(idx, 'name', e.target.value)}
                           />
                           <button
                             onClick={() => removeEditItem(idx)}
-                            className="h-9 w-9 flex items-center justify-center text-red-400 hover:bg-red-50 rounded-lg transition-colors"
+                            className="h-9 w-9 flex items-center justify-center text-red-700 hover:bg-red-50 rounded-lg transition-colors"
                           >
                             <Trash2 className="h-4 w-4" />
                           </button>
@@ -484,13 +457,13 @@ export default function OrderSupportPage() {
                           <input
                             type="number"
                             placeholder="จำนวน"
-                            className="h-9 px-3 rounded-lg border border-slate-100 bg-slate-50 text-[13px] font-bold text-slate-900 focus:border-blue-400 outline-none transition-all"
+                            className="h-9 px-3 rounded-lg border border-slate-100 bg-slate-50 text-sm font-bold text-slate-950 placeholder:text-slate-500 focus:border-blue-400 outline-none transition-all"
                             value={item.qty}
                             onChange={(e) => updateEditItem(idx, 'qty', Number(e.target.value))}
                           />
                           <input
                             placeholder="หน่วย"
-                            className="h-9 px-3 rounded-lg border border-slate-100 bg-slate-50 text-[13px] font-bold text-slate-900 focus:border-blue-400 outline-none transition-all"
+                            className="h-9 px-3 rounded-lg border border-slate-100 bg-slate-50 text-sm font-bold text-slate-950 placeholder:text-slate-500 focus:border-blue-400 outline-none transition-all"
                             value={item.unit}
                             onChange={(e) => updateEditItem(idx, 'unit', e.target.value)}
                           />
@@ -504,24 +477,24 @@ export default function OrderSupportPage() {
               <>
                 <div className="grid grid-cols-2 gap-1.5 text-sm">
                   <div className="bg-slate-50 p-2.5 rounded-lg border border-slate-100">
-                    <span className="text-slate-500 block mb-1  uppercase tracking-wider">สถานที่ร้าน</span>
-                    <span className="font-bold text-slate-900 block text-[11px] leading-relaxed">
+                    <span className="text-slate-800 block mb-1 font-bold uppercase tracking-wider">สถานที่ร้าน</span>
+                    <span className="font-bold text-slate-950 block text-xs leading-relaxed">
                       {selectedOrder.storeLocation || "N/A"}
                     </span>
                   </div>
                   <div className="bg-slate-50 p-2.5 rounded-lg border border-slate-100">
-                    <span className="text-slate-500 block mb-1  uppercase tracking-wider">สถานที่ส่ง</span>
-                    <span className="font-bold text-slate-900 block text-[11px] leading-relaxed">
+                    <span className="text-slate-800 block mb-1 font-bold uppercase tracking-wider">สถานที่ส่ง</span>
+                    <span className="font-bold text-slate-950 block text-xs leading-relaxed">
                       {selectedOrder.location || "N/A"}
                     </span>
                   </div>
                   <div className="bg-slate-50 p-2.5 rounded-lg border border-slate-100">
-                    <span className="text-slate-500 block mb-1  uppercase tracking-wider">สั่งเมื่อ</span>
-                    <span className="font-bold text-slate-900 truncate block text-[11px]">{formatDateTime(selectedOrder.createdAt)}</span>
+                    <span className="text-slate-800 block mb-1 font-bold uppercase tracking-wider">สั่งเมื่อ</span>
+                    <span className="font-bold text-slate-950 truncate block text-xs">{formatDateTime(selectedOrder.createdAt)}</span>
                   </div>
                   <div className="bg-slate-50 p-2.5 rounded-lg border border-slate-100">
-                    <span className="text-slate-500 block mb-1  uppercase tracking-wider">ผู้สั่ง</span>
-                    <span className="font-bold text-slate-900 truncate block text-[11px]">{selectedOrder.requesterName || "N/A"}</span>
+                    <span className="text-slate-800 block mb-1 font-bold uppercase tracking-wider">ผู้สั่ง</span>
+                    <span className="font-bold text-slate-950 truncate block text-xs">{selectedOrder.requesterName || "N/A"}</span>
                   </div>
                 </div>
 
@@ -532,13 +505,13 @@ export default function OrderSupportPage() {
                       className="flex items-center justify-between gap-4 py-3.5 px-1.5"
                     >
                       <div className="min-w-0 flex-1">
-                        <div className="text-[15px] font-bold text-slate-900 truncate leading-tight">
+                        <div className="text-base font-bold text-slate-950 truncate leading-tight">
                           {item.name}
                         </div>
                         <div className="flex items-center gap-3 mt-1">
-                          <span className="text-[11px] text-slate-600 font-bold bg-slate-50 px-1.5 py-0.5 rounded border border-slate-100">{item.qty} {item.unit}</span>
+                          <span className="text-xs text-slate-800 font-bold bg-slate-50 px-1.5 py-0.5 rounded border border-slate-100">{item.qty} {item.unit}</span>
                           {item.boughtAt && (
-                            <div className="flex items-center gap-1.5 text-emerald-600 text-sm  uppercase tracking-tighter">
+                            <div className="flex items-center gap-1.5 text-emerald-800 text-sm font-bold uppercase tracking-tighter">
                               <div className="h-1.5 w-1.5 rounded-full bg-emerald-500 shadow-sm" />
                               <span>ซื้อ {formatDateTime(item.boughtAt)}</span>
                             </div>
@@ -553,7 +526,7 @@ export default function OrderSupportPage() {
                           className={cn(
                             "h-9 w-9 flex items-center justify-center rounded-lg border-2 transition-all active:scale-[0.9]",
                             item.status === "to_buy" || !item.status
-                              ? "border-amber-400 bg-amber-50 text-amber-700 shadow-sm"
+                              ? "border-amber-400 bg-amber-50 text-amber-800 shadow-sm"
                               : "border-slate-100 bg-white text-slate-300 hover:text-slate-500"
                           )}
                         >
@@ -565,7 +538,7 @@ export default function OrderSupportPage() {
                           className={cn(
                             "h-9 w-9 flex items-center justify-center rounded-lg border-2 transition-all active:scale-[0.9]",
                             item.status === "cancelled"
-                              ? "border-red-400 bg-red-50 text-red-700 shadow-sm"
+                              ? "border-red-400 bg-red-50 text-red-800 shadow-sm"
                               : "border-slate-100 bg-white text-slate-300 hover:text-slate-500"
                           )}
                         >
@@ -577,7 +550,7 @@ export default function OrderSupportPage() {
                           className={cn(
                             "h-9 w-9 flex items-center justify-center rounded-lg border-2 transition-all active:scale-[0.9]",
                             item.status === "bought"
-                              ? "border-emerald-400 bg-emerald-50 text-emerald-700 shadow-sm"
+                              ? "border-emerald-400 bg-emerald-50 text-emerald-800 shadow-sm"
                               : "border-slate-100 bg-white text-slate-300 hover:text-slate-500"
                           )}
                         >
@@ -591,9 +564,9 @@ export default function OrderSupportPage() {
             )}
 
             <div className="space-y-1.5">
-              <span className="text-[11px]  text-slate-500 px-1 uppercase tracking-widest">หมายเหตุเพิ่มเติม</span>
+              <span className="text-xs font-bold text-slate-800 px-1 uppercase tracking-widest">หมายเหตุเพิ่มเติม</span>
               <textarea
-                className="w-full h-20 rounded-xl border-2 border-slate-100 bg-slate-50/50 px-4 py-3 text-sm text-slate-900 outline-none focus:bg-white focus:border-slate-300 transition-all font-medium"
+                className="w-full h-20 rounded-xl border-2 border-slate-100 bg-slate-50/50 px-4 py-3 text-sm text-slate-950 outline-none focus:bg-white focus:border-slate-300 transition-all font-semibold placeholder:text-slate-500"
                 placeholder="ระบุลายละเอียดเพิ่มเติม เช่น สินค้าหมด หรือเปลี่ยนสเปค..."
                 value={noteText}
                 onChange={(e) => setNoteText(e.target.value)}
@@ -604,7 +577,7 @@ export default function OrderSupportPage() {
             <div className="pt-2 flex gap-3">
               <button
                 onClick={() => setSelectedOrder(null)}
-                className="flex-1 h-12 px-4 rounded-xl border-2 border-slate-200 text-sm  text-slate-600 hover:bg-slate-50 transition-all active:scale-[0.98]"
+                className="flex-1 h-12 px-4 rounded-xl border-2 border-slate-200 text-sm font-bold text-slate-800 hover:bg-slate-50 transition-all active:scale-[0.98]"
               >
                 ยกเลิก
               </button>
@@ -614,6 +587,7 @@ export default function OrderSupportPage() {
                   setSubmitting(true);
                   try {
                     await updateOrder(selectedOrder.id, {
+                      items: selectedOrder.items || [],
                       status: "completed",
                       buyerId: buyer?.id,
                       buyerName: buyer?.name
@@ -645,7 +619,7 @@ export default function OrderSupportPage() {
                     setSelectedOrder(null);
                   }
                 }}
-                className="flex-[1.5] h-12 rounded-xl text-sm  shadow-lg shadow-slate-950/10"
+                className="flex-[1.5] h-12 rounded-xl text-sm font-bold shadow-lg shadow-slate-950/10"
               >
                 {submitting ? <Loader2 className="h-4 w-4 animate-spin mx-auto" /> : "บันทึกและปิดงาน"}
               </Button>

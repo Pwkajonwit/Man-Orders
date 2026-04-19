@@ -73,27 +73,27 @@ export default function StoreListPage() {
 
       <div className="grid grid-cols-2 gap-2 px-1">
         <div className="rounded-lg border border-blue-100 bg-blue-50/50 px-3.5 py-2.5 transition-all">
-          <div className="text-[10px] font-black uppercase tracking-wider text-blue-600">
+          <div className="text-xs font-bold uppercase tracking-wider text-slate-950">
             ร้านค้าทั้งหมด
           </div>
-          <div className="text-xl font-black text-blue-800">{stores.length}</div>
+          <div className="text-lg font-bold text-slate-950">{stores.length}</div>
         </div>
         <div className="rounded-lg border border-slate-200 bg-white px-3.5 py-2.5 shadow-sm transition-all">
-          <div className="text-[10px] font-black uppercase tracking-widest text-slate-500">
+          <div className="text-xs font-bold uppercase tracking-widest text-slate-950">
             ออร์เดอร์สะสม
           </div>
-          <div className="text-xl font-black text-slate-900">{totalOrders}</div>
+          <div className="text-lg font-bold text-slate-950">{totalOrders}</div>
         </div>
       </div>
 
       <div className="space-y-2 px-1">
         <div className="group relative">
           <div className="absolute left-3.5 top-1/2 flex -translate-y-1/2 items-center justify-center">
-            <Search className="h-4 w-4 text-slate-400 transition-colors group-focus-within:text-slate-700" />
+            <Search className="h-4 w-4 text-slate-500 transition-colors group-focus-within:text-slate-700" />
           </div>
           <Input
             placeholder="ค้นหาชื่อร้านค้า ประเภท หรือที่อยู่ร้าน..."
-            className="h-11 rounded-xl border-2 border-slate-200 bg-white pl-10 text-[13px] text-slate-900 shadow-sm transition-all focus:border-slate-400 focus:ring-0"
+            className="h-11 rounded-xl border-2 border-slate-200 bg-white pl-10 text-sm font-semibold text-slate-950 shadow-sm transition-all placeholder:text-slate-500 focus:border-slate-400 focus:ring-0"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
@@ -106,10 +106,10 @@ export default function StoreListPage() {
                 <Plus className="h-4 w-4 text-white" />
               </div>
               <div className="text-left">
-                <div className="text-[13px] font-black leading-tight text-white">
+                <div className="text-sm font-bold leading-tight text-white">
                   เพิ่มร้านค้าใหม่
                 </div>
-                <div className="text-[9px] font-bold uppercase leading-none tracking-widest text-white/50">
+                <div className="text-xs font-semibold uppercase leading-none tracking-widest text-white/70">
                   Register New Partner
                 </div>
               </div>
@@ -122,7 +122,7 @@ export default function StoreListPage() {
       <div className="space-y-2">
         <div className="flex items-center gap-1.5 border-b border-slate-100 px-2 pb-1.5 pt-1">
           <Building2 className="h-3 w-3 text-slate-600" />
-          <h2 className="text-[10px] font-black uppercase leading-none tracking-[0.2em] text-slate-600">
+          <h2 className="text-xs font-bold uppercase leading-none tracking-[0.2em] text-slate-950">
             รายชื่อร้านค้า
           </h2>
         </div>
@@ -131,7 +131,7 @@ export default function StoreListPage() {
           {loading ? (
             <div className="animate-in fade-in flex flex-col items-center justify-center py-20 text-slate-400 transition-all">
               <Loader2 className="h-8 w-8 animate-spin text-slate-300" />
-              <p className="mt-4 text-[12px] font-black leading-none tracking-widest">
+              <p className="mt-4 text-sm font-semibold leading-none tracking-widest text-slate-700">
                 กำลังโหลดข้อมูลชั่วคราว...
               </p>
             </div>
@@ -140,10 +140,10 @@ export default function StoreListPage() {
               <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-slate-50">
                 <Store className="h-8 w-8 text-slate-200" />
               </div>
-              <p className="text-[15px] font-black text-slate-900 underline decoration-primary decoration-4 underline-offset-4">
+              <p className="text-lg font-bold text-slate-950 underline decoration-primary decoration-4 underline-offset-4">
                 ไม่พบร้านค้าในระบบ
               </p>
-              <p className="mt-3 text-[11px] font-black uppercase tracking-widest text-slate-500">
+              <p className="mt-3 text-xs font-semibold uppercase tracking-widest text-slate-700">
                 ลองค้นหาด้วยคำอื่น หรือเพิ่มร้านค้าใหม่
               </p>
             </div>
@@ -160,10 +160,10 @@ export default function StoreListPage() {
                 >
                   <div className="mb-2 flex items-center justify-between gap-3">
                     <div className="min-w-0 flex-1">
-                      <div className="mb-1 truncate text-[16px] font-black leading-tight text-slate-950">
+                      <div className="mb-1 truncate text-lg font-bold leading-tight text-slate-950">
                         {store.name}
                       </div>
-                      <span className="inline-flex items-center rounded-md border border-slate-200 bg-slate-50 px-2 py-1 text-[9.5px] font-black uppercase leading-none tracking-widest text-slate-600">
+                      <span className="inline-flex items-center rounded-md border border-slate-200 bg-slate-50 px-2 py-1 text-xs font-semibold uppercase leading-none tracking-widest text-slate-700">
                         {store.type || "ทั่วไป"}
                       </span>
                     </div>
@@ -209,10 +209,10 @@ export default function StoreListPage() {
                       <div className="flex items-start gap-2 text-slate-700">
                         <MapPin className="mt-0.5 h-3.5 w-3.5 shrink-0 text-slate-400" />
                         <div className="min-w-0">
-                          <div className="text-[10px] font-black uppercase tracking-wide text-slate-400">
+                          <div className="text-xs font-bold uppercase tracking-wide text-slate-950">
                             ที่อยู่ร้านค้า
                           </div>
-                          <div className="truncate text-[12px] leading-snug text-slate-900">
+                          <div className="truncate text-sm font-semibold leading-snug text-slate-800">
                             {store.location || "ไม่ระบุที่อยู่ร้านค้า"}
                           </div>
                         </div>
@@ -220,14 +220,14 @@ export default function StoreListPage() {
 
                       <div className="flex items-center gap-2 text-slate-500">
                         <Phone className="h-3 w-3 shrink-0 text-slate-300" />
-                        <span className="text-[11px] leading-none">
+                        <span className="text-sm font-semibold leading-none text-slate-800">
                           {store.phone || "ไม่ระบุเบอร์ติดต่อ"}
                         </span>
                       </div>
 
                       <div className="flex items-center gap-2 text-slate-500">
                         <ShoppingCart className="h-3 w-3 shrink-0 text-slate-300" />
-                        <span className="text-[11px] leading-none">
+                        <span className="text-sm font-semibold leading-none text-slate-800">
                           ออร์เดอร์สะสม {store.orders || 0}
                         </span>
                       </div>
@@ -242,7 +242,7 @@ export default function StoreListPage() {
                       className="flex h-9 shrink-0 items-center gap-2 rounded-lg border border-primary bg-primary px-4 text-slate-950 shadow-md shadow-primary/20 transition-all active:scale-95 hover:bg-[#b0f53d]"
                     >
                       <ShoppingCart className="h-3.5 w-3.5" />
-                      <span className="text-[11px] font-black tracking-tight">
+                      <span className="text-sm font-bold tracking-tight">
                         สั่งสินค้า
                       </span>
                     </button>

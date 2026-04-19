@@ -965,113 +965,125 @@ export default function OrdersPage() {
         isOpen={isDetailModalOpen}
         onClose={handleCloseDetail}
         title="รายละเอียดออร์เดอร์"
-        className="max-w-4xl rounded-[14px] border-slate-200/90 p-0 shadow-[0_20px_70px_-52px_rgba(15,23,42,0.34)]"
-        bodyClassName="max-h-[80vh] overflow-y-auto px-4 pb-4 pt-1"
+        className="max-w-3xl rounded-[14px] border-slate-200/90 p-0 shadow-[0_20px_70px_-52px_rgba(15,23,42,0.34)]"
+        bodyClassName="max-h-[78vh] overflow-y-auto px-3 pb-3 pt-0"
       >
         {detailOrder && detailStatus && detailMetrics ? (
-          <div className="space-y-3.5 pr-1">
-            <div className="rounded-[10px] border border-slate-200 bg-[linear-gradient(135deg,rgba(248,250,252,1)_0%,rgba(255,251,235,0.86)_52%,rgba(236,253,245,0.82)_100%)] px-4 py-4">
-              <div className="flex items-start justify-between gap-4">
-                <div className="space-y-1">
-                  <div className={META_LABEL_CLASS}>เลขที่บิล</div>
-                  <div className="text-[2rem] font-semibold leading-none tracking-[-0.04em] text-slate-950">{getOrderReference(detailOrder)}</div>
-                  <div className="pt-1 text-sm text-slate-500">สร้างเมื่อ {formatDateTime(detailOrder.createdAt)}</div>
+          <div className="space-y-2.5 pr-1 text-sm">
+            <div className="rounded-[10px] border border-slate-200 bg-white px-3 py-2.5">
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <div className="text-lg font-semibold leading-none tracking-[-0.03em] text-slate-950">
+                      {getOrderReference(detailOrder)}
+                    </div>
+                    <AdminStatusChip label={detailStatus.label} tone={detailStatus.tone} className="rounded-full px-2.5 py-0.5 text-[11px] font-semibold" />
+                  </div>
+                  <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-xs font-medium text-slate-600">
+                    <span>สร้าง {formatDateTime(detailOrder.createdAt)}</span>
+                    <span>ผู้ขอ {detailOrder.requesterName || "ไม่ระบุ"}</span>
+                    <span>จัดซื้อ {detailOrder.buyerName || "ยังไม่มอบหมาย"}</span>
+                  </div>
                 </div>
-                <AdminStatusChip label={detailStatus.label} tone={detailStatus.tone} className="rounded-full px-3 py-1 text-xs font-medium" />
+                <div className="shrink-0 text-right">
+                  <div className="text-base font-semibold leading-none text-slate-950">{detailMetrics.completionPercent}%</div>
+                  <div className="mt-1 text-xs font-medium text-slate-500">
+                    {detailMetrics.resolvedCount}/{detailOrder.items.length}
+                  </div>
+                </div>
               </div>
-              <div className="mt-5 space-y-2">
-                <div className="flex items-center justify-between text-sm text-slate-600">
-                  <span>ปิดงานแล้ว {detailMetrics.resolvedCount}/{detailOrder.items.length} รายการ</span>
-                  <span className="font-semibold text-slate-900">{detailMetrics.completionPercent}%</span>
-                </div>
-                <div className="h-2.5 overflow-hidden rounded-full bg-white/90">
-                  <div
-                    className={cn("h-full rounded-full transition-all", PROGRESS_TONE_CLASS[detailStatus.tone] || PROGRESS_TONE_CLASS.slate)}
-                    style={{ width: `${detailMetrics.completionPercent}%` }}
-                  />
-                </div>
+              <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-slate-100">
+                <div
+                  className={cn("h-full rounded-full transition-all", PROGRESS_TONE_CLASS[detailStatus.tone] || PROGRESS_TONE_CLASS.slate)}
+                  style={{ width: `${detailMetrics.completionPercent}%` }}
+                />
               </div>
-              <div className="mt-4 grid grid-cols-3 gap-2 text-center">
-                <div className="rounded-[10px] bg-white px-3 py-3 shadow-sm">
-                  <div className="text-xl font-semibold leading-none text-slate-950">{detailMetrics.pendingCount}</div>
-                  <div className="mt-1 text-[11px] font-medium uppercase tracking-[0.14em] text-slate-500">รอซื้อ</div>
+              <div className="mt-2 grid grid-cols-3 gap-1.5 text-center">
+                <div className="rounded-[8px] bg-slate-50 px-2 py-2">
+                  <div className="text-base font-semibold leading-none text-slate-950">{detailMetrics.pendingCount}</div>
+                  <div className="mt-1 text-[10px] font-semibold uppercase tracking-[0.1em] text-slate-500">รอซื้อ</div>
                 </div>
-                <div className="rounded-[10px] bg-emerald-50 px-3 py-3 shadow-sm">
-                  <div className="text-xl font-semibold leading-none text-emerald-700">{detailMetrics.boughtCount}</div>
-                  <div className="mt-1 text-[11px] font-medium uppercase tracking-[0.14em] text-emerald-600">สำเร็จ</div>
+                <div className="rounded-[8px] bg-emerald-50 px-2 py-2">
+                  <div className="text-base font-semibold leading-none text-emerald-700">{detailMetrics.boughtCount}</div>
+                  <div className="mt-1 text-[10px] font-semibold uppercase tracking-[0.1em] text-emerald-700">สำเร็จ</div>
                 </div>
-                <div className="rounded-[10px] bg-red-50 px-3 py-3 shadow-sm">
-                  <div className="text-xl font-semibold leading-none text-red-600">{detailMetrics.cancelledCount}</div>
-                  <div className="mt-1 text-[11px] font-medium uppercase tracking-[0.14em] text-red-500">ยกเลิก</div>
+                <div className="rounded-[8px] bg-red-50 px-2 py-2">
+                  <div className="text-base font-semibold leading-none text-red-700">{detailMetrics.cancelledCount}</div>
+                  <div className="mt-1 text-[10px] font-semibold uppercase tracking-[0.1em] text-red-700">ยกเลิก</div>
                 </div>
               </div>
             </div>
 
-            <div className="grid gap-3 sm:grid-cols-2">
-              <div className="rounded-[10px] border border-slate-200 bg-white px-4 py-4 shadow-sm">
-                <div className={META_LABEL_CLASS}>ผู้ขอ</div>
-                <div className="mt-2 text-lg font-semibold tracking-[-0.02em] text-slate-950">{detailOrder.requesterName}</div>
-                <div className="mt-1 text-sm text-slate-500">{detailOrder.requesterUsername ? `@${detailOrder.requesterUsername}` : "ไม่มีชื่อผู้ใช้"}</div>
+            <div className="grid gap-2 sm:grid-cols-2">
+              <div className="rounded-[10px] border border-slate-200 bg-white px-3 py-2.5">
+                <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">ผู้ขอ</div>
+                <div className="mt-1 text-sm font-semibold text-slate-950">{detailOrder.requesterName || "ไม่ระบุ"}</div>
+                <div className="mt-0.5 text-xs font-medium text-slate-600">{detailOrder.requesterUsername ? `@${detailOrder.requesterUsername}` : "ไม่มีชื่อผู้ใช้"}</div>
                 {detailRequesterProfile?.linePictureUrl ? (
-                  <div className="mt-3 flex items-center gap-3 rounded-[10px] bg-slate-50 px-3 py-2">
+                  <div className="mt-2 flex items-center gap-2 rounded-[8px] bg-slate-50 px-2 py-1.5">
                     <img
                       src={detailRequesterProfile.linePictureUrl}
                       alt={detailOrder.requesterName}
-                      className="h-10 w-10 rounded-full object-cover"
+                      className="h-8 w-8 rounded-full object-cover"
                     />
-                    <div className="text-xs text-slate-500">รูปโปรไฟล์พนักงานจากระบบ</div>
+                    <div className="text-xs font-medium text-slate-600">โปรไฟล์พนักงาน</div>
                   </div>
                 ) : null}
               </div>
-              <div className="rounded-[10px] border border-slate-200 bg-white px-4 py-4 shadow-sm">
-                <div className={META_LABEL_CLASS}>ผู้จัดซื้อ</div>
-                <div className="mt-2 inline-flex items-center gap-2 rounded-full border border-teal-200 bg-teal-50 px-3 py-1.5 text-sm font-semibold text-teal-800">
+              <div className="rounded-[10px] border border-slate-200 bg-white px-3 py-2.5">
+                <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">ผู้จัดซื้อ</div>
+                <div className="mt-1 inline-flex items-center gap-2 rounded-full border border-teal-200 bg-teal-50 px-2.5 py-1 text-xs font-semibold text-teal-800">
                   <User className="h-4 w-4" />
                   {detailOrder.buyerName || "ยังไม่มอบหมาย"}
                 </div>
-                <div className="mt-2 text-sm text-slate-500">อัปเดตล่าสุด {formatDateTime(detailOrder.updatedAt)}</div>
+                <div className="mt-1 text-xs font-medium text-slate-600">อัปเดต {formatDateTime(detailOrder.updatedAt)}</div>
               </div>
-              <div className="rounded-[10px] border border-slate-200 bg-white px-4 py-4 shadow-sm">
-                <div className={META_LABEL_CLASS}>ร้านค้า</div>
-                <div className="mt-2 text-lg font-semibold tracking-[-0.02em] text-slate-950">{detailOrder.storeName || "ทั่วไป"}</div>
-                <div className="mt-1 text-sm leading-relaxed text-slate-500">ที่ตั้งร้าน: {detailOrder.storeLocation || "ไม่ระบุ"}</div>
+              <div className="rounded-[10px] border border-slate-200 bg-white px-3 py-2.5">
+                <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">ร้านค้า</div>
+                <div className="mt-1 text-sm font-semibold text-slate-950">{detailOrder.storeName || "ทั่วไป"}</div>
+                <div className="mt-0.5 line-clamp-2 text-xs font-medium leading-5 text-slate-600">ที่ตั้ง: {detailOrder.storeLocation || "ไม่ระบุ"}</div>
               </div>
-              <div className="rounded-[10px] border border-slate-200 bg-white px-4 py-4 shadow-sm">
-                <div className={META_LABEL_CLASS}>สถานที่จัดส่ง</div>
-                <div className="mt-2 text-lg font-semibold tracking-[-0.02em] text-slate-950">{detailOrder.location || "ไม่ระบุ"}</div>
-                <div className="mt-1 text-sm text-slate-500">{detailOrder.contact || "ไม่มีข้อมูลติดต่อเพิ่มเติม"}</div>
+              <div className="rounded-[10px] border border-slate-200 bg-white px-3 py-2.5">
+                <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">จุดส่ง</div>
+                <div className="mt-1 text-sm font-semibold text-slate-950">{detailOrder.location || "ไม่ระบุ"}</div>
+                <div className="mt-0.5 text-xs font-medium text-slate-600">{detailOrder.contact || "ไม่มีข้อมูลติดต่อเพิ่มเติม"}</div>
               </div>
             </div>
 
             {detailOrder.note ? (
-              <div className="rounded-[10px] border border-slate-200 bg-white px-4 py-4 shadow-sm">
-                <div className={META_LABEL_CLASS}>บันทึกเพิ่มเติม</div>
-                <div className="mt-2 text-sm leading-7 text-slate-700">{detailOrder.note}</div>
+              <div className="rounded-[10px] border border-slate-200 bg-white px-3 py-2.5">
+                <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">บันทึกเพิ่มเติม</div>
+                <div className="mt-1 text-sm font-medium leading-6 text-slate-800">{detailOrder.note}</div>
               </div>
             ) : null}
 
-            <div className="rounded-[10px] border border-slate-200 bg-white px-4 py-4 shadow-sm">
-              <div>
-                <div className={META_LABEL_CLASS}>รายการสินค้า</div>
-                <div className="mt-1 text-lg font-semibold tracking-[-0.02em] text-slate-950">{detailOrder.items.length} รายการ</div>
+            <div className="rounded-[10px] border border-slate-200 bg-white px-3 py-2.5">
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">รายการสินค้า</div>
+                  <div className="mt-1 text-sm font-semibold text-slate-950">{detailOrder.items.length} รายการ</div>
+                </div>
+                <div className="text-xs font-medium text-slate-600">
+                  สำเร็จ {detailMetrics.boughtCount} / ยกเลิก {detailMetrics.cancelledCount}
+                </div>
               </div>
-              <div className="mt-4 space-y-3">
+              <div className="mt-2 divide-y divide-slate-100">
                 {detailOrder.items.map((item) => {
                   const itemStatus = ITEM_STATUS_MAP[item.status as keyof typeof ITEM_STATUS_MAP] ?? ITEM_STATUS_MAP.to_buy;
 
                   return (
-                    <div key={item.id} className="rounded-[10px] border border-slate-200 bg-slate-50/70 px-4 py-4">
-                      <div className="flex items-start justify-between gap-3">
-                        <div className="min-w-0">
-                          <div className="text-base font-semibold text-slate-950">{item.name}</div>
-                          <div className="mt-1 text-sm text-slate-500">
+                    <div key={item.id} className="flex items-start justify-between gap-3 py-2.5">
+                      <div className="min-w-0">
+                        <div className="truncate text-sm font-semibold text-slate-950">{item.name}</div>
+                        <div className="mt-1 flex flex-wrap items-center gap-2 text-xs font-medium text-slate-600">
+                          <span>
                             {item.qty} {item.unit}
-                          </div>
-                          {item.note ? <div className="mt-2 text-sm leading-relaxed text-slate-600">{item.note}</div> : null}
-                          {item.boughtAt ? <div className="mt-2 text-xs font-medium text-slate-500">ซื้อเมื่อ {formatDateTime(item.boughtAt)}</div> : null}
+                          </span>
+                          {item.boughtAt ? <span>ซื้อเมื่อ {formatDateTime(item.boughtAt)}</span> : null}
                         </div>
-                        <AdminStatusChip label={itemStatus.label} tone={itemStatus.tone} className="shrink-0 rounded-full px-3 py-1 text-xs font-medium" />
+                        {item.note ? <div className="mt-1 text-xs font-medium leading-5 text-slate-600">{item.note}</div> : null}
                       </div>
+                      <AdminStatusChip label={itemStatus.label} tone={itemStatus.tone} className="shrink-0 rounded-full px-2.5 py-1 text-[10px] font-semibold" />
                     </div>
                   );
                 })}

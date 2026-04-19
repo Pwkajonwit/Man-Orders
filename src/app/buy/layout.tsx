@@ -18,7 +18,7 @@ export const viewport: Viewport = {
 export default function BuyLayout({ children }: { children: React.ReactNode }) {
   return (
     <OrderProvider>
-      <div className="buy-ui min-h-screen bg-transparent px-4 pb-12 pt-4">
+      <div className="buy-ui min-h-screen bg-transparent px-4 py-2">
         {children}
       </div>
     </OrderProvider>

@@ -9,7 +9,7 @@ import {
   AdminSecondaryButton,
   AdminStatusChip,
 } from "@/components/admin/AdminUI";
-import { Users, Loader2, ShieldCheck, Link2, Search, CheckCircle2, Shield, UserPlus, Edit3 } from "lucide-react";
+import { Users, Loader2, ShieldCheck, Link2, Search, CheckCircle2, Shield, UserPlus, Edit3, Link2Off, Trash2 } from "lucide-react";
 import { cn } from "@/components/ui/Button";
 import { Input, Label, Select } from "@/components/ui/FormElements";
 import { Modal } from "@/components/ui/Modal";
@@ -255,20 +255,20 @@ export default function StaffPage() {
                       </td>
                       <td>
                         {member.lineUserId ? (
-                          <div className="flex flex-col gap-1 items-start group/line">
-                            <span className="inline-flex items-center gap-1.5 rounded-md bg-[#06C755]/10 px-2 py-1 text-xs leading-none text-[#06C755]">
-                              <Link2 className="h-3 w-3" /> CONNECTED
+                          <div className="flex flex-col gap-1.5 items-start">
+                            <span className="inline-flex items-center gap-1.5 rounded-md bg-[#06C755]/10 px-2 py-1 text-[10px] font-bold leading-none text-[#06C755] border border-[#06C755]/20">
+                              <CheckCircle2 className="h-2.5 w-2.5" /> CONNECTED
                             </span>
                             <button
                               onClick={() => handleUnlinkLine(member)}
                               type="button"
-                              className="whitespace-nowrap text-xs text-red-500 opacity-0 transition-opacity group-hover:opacity-100"
+                              className="flex items-center gap-1 text-[10px] font-bold text-red-500/70 hover:text-red-600 transition-colors uppercase tracking-wider"
                             >
-                              UNLINK ACCOUNT ?
+                              <Link2Off className="h-2.5 w-2.5" /> ยกเลิกเชื่อมต่อ
                             </button>
                           </div>
                         ) : (
-                          <span className="text-sm text-slate-400">ไม่ได้เชื่อมต่อ</span>
+                          <span className="text-[11px] font-medium text-slate-400 italic">ยังไม่เชื่อมต่อ</span>
                         )}
                       </td>
                       <td className="text-right">
@@ -316,6 +316,33 @@ export default function StaffPage() {
                 <option value="Admin">⚡ ผู้ดูแลระบบ (Admin)</option>
               </Select>
             </div>
+
+            {isEditing && formData.lineUserId && (
+              <div className="rounded-xl border border-red-100 bg-red-50/50 p-3.5">
+                <div className="flex items-center justify-between gap-4">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-white text-[#06C755] shadow-sm">
+                      <Link2 className="h-5 w-5" />
+                    </div>
+                    <div>
+                      <div className="text-xs font-bold text-slate-900">เชื่อมต่อ LINE แล้ว</div>
+                      <div className="text-[11px] text-slate-500">@{formData.lineDisplayName || "Unknown"}</div>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      handleUnlinkLine(formData as StaffMember);
+                      setFormData({ ...formData, lineUserId: undefined, linePictureUrl: undefined, lineDisplayName: undefined });
+                    }}
+                    className="flex items-center gap-1.5 rounded-lg border border-red-200 bg-white px-3 py-1.5 text-[11px] font-bold text-red-600 shadow-sm transition-all hover:bg-red-50 active:scale-95"
+                  >
+                    <Link2Off className="h-3.5 w-3.5" />
+                    ยกเลิกการเชื่อมต่อ
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
 
           <div className="mt-4 flex gap-3 border-t border-slate-100 pt-5">
